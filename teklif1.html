@@ -103,17 +103,19 @@
     /* ====== PDF: tek sayfa fatura gibi ====== */
     #pdfPage{ display:none; }
 
-    /* Basarken KİLİT: sadece pdfPage görünsün */
-    body.printing *{ visibility: hidden !important; }
-    body.printing #pdfPage,
-    body.printing #pdfPage *{ visibility: visible !important; }
+    /* ✅ Basarken: ana ekran tamamen KAPANIR, sadece pdfPage görünür */
+    body.printing .wrap{ display:none !important; }
     body.printing #pdfPage{
-      display:block !important;
-      position:absolute; left:0; top:0;
-      width:100%;
-      background:#fff;
-      color:#111;
+    display:block !important;
+    position:static !important;   /* absolute olmasın -> sayfa kaydırma/boş sayfa yapmasın */
+    width:auto !important;
+    background:#fff;
+    color:#111;
     }
+
+    /* Normalde pdf sayfası kapalı */
+    #pdfPage{ display:none; }
+
 
     @page { size: A4; margin: 10mm; }
     @media print{
@@ -604,14 +606,18 @@
       }
     }
 
-    function printPdf(){
-      recalc();
-      buildPdfData();
+  function printPdf(){
+  recalc();
+  buildPdfData();
 
-      document.body.classList.add("printing");
-      // bazı tarayıcılarda render için küçük bekleme iyi gelir
-      setTimeout(()=> window.print(), 60);
-    }
+  document.body.classList.add("printing");
+
+  // Bazı tarayıcılarda bir frame beklemek daha temiz
+  requestAnimationFrame(() => {
+    setTimeout(() => window.print(), 50);
+  });
+}
+
 
     // Print bittikten sonra normale dön
     window.addEventListener("afterprint", ()=> {
