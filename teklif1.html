@@ -121,6 +121,33 @@
     }
     .fileBtn input{display:none}
 
+    /* ===== İç özet tablo (PDF’ye girmez) ===== */
+    .internalTable{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .internalTable th{
+      font-size:12px;
+      text-align:left;
+      color:#dbe7ff;
+      background: rgba(255,255,255,.06);
+      padding:10px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      white-space:nowrap;
+    }
+    .internalTable td{
+      padding:10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      vertical-align:middle;
+    }
+    .internalTable tr:last-child td{border-bottom:none;}
+    .internalTable td.num{ text-align:right; white-space:nowrap; }
+    .muted{ color: rgba(233,238,247,.65); font-size:12px; }
+
     /* ====== PDF PRINT: sadece pdfPage bas ====== */
     #pdfPage{ display:none; }
 
@@ -164,7 +191,7 @@
       min-height:88px;
     }
     .pdfLogo img{
-      max-height:92px; /* ✅ logo büyük */
+      max-height:92px;
       max-width:100%;
       object-fit:contain;
     }
@@ -254,10 +281,6 @@
     .imgTable th{
       background:#f3f4f6;
       font-weight:900;
-      text-align:left;
-    }
-    .imgCellPdf{
-      width:60%;
       text-align:left;
     }
     .imgBoxPdf{
@@ -413,7 +436,12 @@
             </div>
           </div>
 
-          <div style="text-align:center;margin-top:14px;color:rgba(233,238,247,.75);font-size:12px;">B.C.</div>
+          <div class="divider"></div>
+
+          <h2 style="padding:0;margin:0 0 8px 0;">İç Özet (PDF’ye girmez)</h2>
+          <div id="internalSummary" style="overflow:auto;"></div>
+
+          <div style="text-align:center;margin-top:14px;color:rgba(233,238,247,.75);font-size:12px;">M.K.</div>
         </div>
       </section>
     </div>
@@ -469,7 +497,7 @@
       </div>
 
       <div class="pdfNote" id="pNote">-</div>
-      <div class="pdfFooter">B.C</div>
+      <div class="pdfFooter">M.K.</div>
 
       <!-- 2. Sayfa -->
       <div class="pdfPageBreak"></div>
@@ -485,7 +513,7 @@
         <tbody id="pImages"></tbody>
       </table>
 
-      <div class="pdfFooter">B.C.</div>
+      <div class="pdfFooter">M.K.</div>
     </div>
   </section>
 
@@ -598,9 +626,51 @@
       return tr;
     }
 
+    function renderInternalSummary(rows){
+      const el = document.getElementById("internalSummary");
+      if(!el) return;
+
+      if(!rows.length){
+        el.innerHTML = `<div class="muted" style="padding:10px;">Henüz ürün yok.</div>`;
+        return;
+      }
+
+      let html = `
+        <table class="internalTable">
+          <thead>
+            <tr>
+              <th>Ürün</th>
+              <th class="num">Adet</th>
+              <th class="num">Tek Maliyet (KDV Dahil)</th>
+              <th class="num">Toplam Maliyet (KDV Dahil)</th>
+              <th class="num">Kâr (KDV Hariç)</th>
+              <th class="num">Kâr Marjı</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      for(const r of rows){
+        html += `
+          <tr>
+            <td>${esc(r.name)}</td>
+            <td class="num">${Number(r.qty || 0)}</td>
+            <td class="num">${fmtMoney(r.unitCost)}</td>
+            <td class="num">${fmtMoney(r.totalCost)}</td>
+            <td class="num">${fmtMoney(r.profit)}</td>
+            <td class="num">${(r.profitMarginPct || 0).toLocaleString("tr-TR",{minimumFractionDigits:1,maximumFractionDigits:1})}%</td>
+          </tr>
+        `;
+      }
+
+      html += `</tbody></table>`;
+      el.innerHTML = html;
+    }
+
     function recalc(){
       let sumExcl=0, sumIncl=0, sumVat=0;
       const rows = Array.from($("itemsBody").querySelectorAll("tr"));
+      let internalRows = [];
 
       for(const tr of rows){
         const buyExcl = toNumber(tr.querySelector('[data-k="buyExcl"]').value);
@@ -631,6 +701,17 @@
         sumExcl += lineExcl;
         sumIncl += lineIncl;
         sumVat  += (lineIncl - lineExcl);
+
+        // ===== İç Özet (PDF’ye girmez) =====
+        const name = tr.querySelector('[data-k="name"]').value.trim() || "-";
+        const unitCost = costIncl;
+        const totalCost = unitCost * qty;
+
+        const buyTotalExcl = buyExcl * qty;
+        const profit = lineExcl - buyTotalExcl;
+        const profitMarginPct = lineExcl > 0 ? (profit / lineExcl) * 100 : 0;
+
+        internalRows.push({ name, qty, unitCost, totalCost, profit, profitMarginPct });
       }
 
       $("sumExcl").value = fmtMoney(sumExcl);
@@ -640,10 +721,12 @@
       $("pSumExcl").textContent = fmtMoney(sumExcl);
       $("pSumVat").textContent  = fmtMoney(sumVat);
       $("pSumIncl").textContent = fmtMoney(sumIncl);
+
+      renderInternalSummary(internalRows);
     }
 
     function buildPdfData(){
-      // Logo + Firma bilgisi (logo büyük, "Logo" yazısı yok)
+      // Logo + Firma bilgisi
       $("pLogo").innerHTML = `<img src="${CONFIG.logoPath}" alt="Ceviz Art Logo">`;
 
       const phones = CONFIG.phones.filter(Boolean).join(" / ");
@@ -710,7 +793,7 @@
         const ir = document.createElement("tr");
         ir.innerHTML = `
           <td><b>${esc(name)}</b></td>
-          <td class="imgCellPdf">
+          <td>
             <div class="imgBoxPdf">
               ${imgUrl ? `<img src="${imgUrl}" alt="${esc(name)}">` : `<span class="mutedPdf">Görsel eklenmedi</span>`}
             </div>
@@ -732,7 +815,7 @@
     });
 
     // Save/Load (görseller dataURL olarak kaydolur)
-    const KEY="cevizart_quote_v3_images";
+    const KEY="cevizart_quote_v4_full";
     function collect(){
       const rows = Array.from($("itemsBody").querySelectorAll("tr")).map(tr => ({
         name: tr.querySelector('[data-k="name"]').value,
