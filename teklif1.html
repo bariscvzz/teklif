@@ -441,6 +441,23 @@
           <h2 style="padding:0;margin:0 0 8px 0;">İç Özet (PDF’ye girmez)</h2>
           <div id="internalSummary" style="overflow:auto;"></div>
 
+          <div class="divider"></div>
+
+          <div class="row" style="gap:10px;">
+            <div class="field">
+              <label>Toplam Maliyet (KDV Dahil)</label>
+              <input id="internalTotalCostIncl" readonly>
+            </div>
+            <div class="field">
+              <label>Toplam Kâr (KDV’siz)</label>
+              <input id="internalTotalProfitExcl" readonly>
+            </div>
+            <div class="field">
+              <label>Toplam Kâr (KDV’li)</label>
+              <input id="internalTotalProfitIncl" readonly>
+            </div>
+          </div>
+
           <div style="text-align:center;margin-top:14px;color:rgba(233,238,247,.75);font-size:12px;">M.K.</div>
         </div>
       </section>
@@ -641,9 +658,19 @@
             <tr>
               <th>Ürün</th>
               <th class="num">Adet</th>
-              <th class="num">Tek Maliyet (KDV Dahil)</th>
-              <th class="num">Toplam Maliyet (KDV Dahil)</th>
-              <th class="num">Kâr (KDV Hariç)</th>
+
+              <th class="num">Tek Maliyet<br><span class="muted">(KDV Dahil)</span></th>
+              <th class="num">Toplam Maliyet<br><span class="muted">(KDV Dahil)</span></th>
+
+              <th class="num">Tek Satış<br><span class="muted">(KDV’siz)</span></th>
+              <th class="num">Tek Satış<br><span class="muted">(KDV’li)</span></th>
+
+              <th class="num">Toplam Satış<br><span class="muted">(KDV’siz)</span></th>
+              <th class="num">Toplam Satış<br><span class="muted">(KDV’li)</span></th>
+
+              <th class="num">Toplam Kâr<br><span class="muted">(KDV’siz)</span></th>
+              <th class="num">Toplam Kâr<br><span class="muted">(KDV’li)</span></th>
+
               <th class="num">Kâr Marjı</th>
             </tr>
           </thead>
@@ -655,9 +682,19 @@
           <tr>
             <td>${esc(r.name)}</td>
             <td class="num">${Number(r.qty || 0)}</td>
-            <td class="num">${fmtMoney(r.unitCost)}</td>
-            <td class="num">${fmtMoney(r.totalCost)}</td>
-            <td class="num">${fmtMoney(r.profit)}</td>
+
+            <td class="num">${fmtMoney(r.unitCostIncl)}</td>
+            <td class="num">${fmtMoney(r.totalCostIncl)}</td>
+
+            <td class="num">${fmtMoney(r.unitSaleExcl)}</td>
+            <td class="num">${fmtMoney(r.unitSaleIncl)}</td>
+
+            <td class="num">${fmtMoney(r.totalSaleExcl)}</td>
+            <td class="num">${fmtMoney(r.totalSaleIncl)}</td>
+
+            <td class="num">${fmtMoney(r.profitExcl)}</td>
+            <td class="num">${fmtMoney(r.profitIncl)}</td>
+
             <td class="num">${(r.profitMarginPct || 0).toLocaleString("tr-TR",{minimumFractionDigits:1,maximumFractionDigits:1})}%</td>
           </tr>
         `;
@@ -670,7 +707,11 @@
     function recalc(){
       let sumExcl=0, sumIncl=0, sumVat=0;
       const rows = Array.from($("itemsBody").querySelectorAll("tr"));
+
       let internalRows = [];
+      let internalTotalCostIncl = 0;
+      let internalTotalProfitExcl = 0;
+      let internalTotalProfitIncl = 0;
 
       for(const tr of rows){
         const buyExcl = toNumber(tr.querySelector('[data-k="buyExcl"]').value);
@@ -704,25 +745,51 @@
 
         // ===== İç Özet (PDF’ye girmez) =====
         const name = tr.querySelector('[data-k="name"]').value.trim() || "-";
-        const unitCost = costIncl;
-        const totalCost = unitCost * qty;
+
+        const unitCostIncl = costIncl;
+        const totalCostIncl = unitCostIncl * qty;
+
+        const unitSaleExcl = saleUnitExcl;
+        const unitSaleIncl = saleUnitIncl;
+
+        const totalSaleExcl = lineExcl;
+        const totalSaleIncl = lineIncl;
 
         const buyTotalExcl = buyExcl * qty;
-        const profit = lineExcl - buyTotalExcl;
-        const profitMarginPct = lineExcl > 0 ? (profit / lineExcl) * 100 : 0;
+        const profitExcl = totalSaleExcl - buyTotalExcl;      // KDV'siz kâr
+        const profitIncl = totalSaleIncl - totalCostIncl;      // KDV'li kâr
 
-        internalRows.push({ name, qty, unitCost, totalCost, profit, profitMarginPct });
+        const profitMarginPct = totalSaleExcl > 0 ? (profitExcl / totalSaleExcl) * 100 : 0;
+
+        internalRows.push({
+          name, qty,
+          unitCostIncl, totalCostIncl,
+          unitSaleExcl, unitSaleIncl,
+          totalSaleExcl, totalSaleIncl,
+          profitExcl, profitIncl,
+          profitMarginPct
+        });
+
+        internalTotalCostIncl += totalCostIncl;
+        internalTotalProfitExcl += profitExcl;
+        internalTotalProfitIncl += profitIncl;
       }
 
+      // Ekran toplamları
       $("sumExcl").value = fmtMoney(sumExcl);
       $("sumVat").value  = fmtMoney(sumVat);
       $("sumIncl").value = fmtMoney(sumIncl);
 
+      // PDF toplamları (hazırlık)
       $("pSumExcl").textContent = fmtMoney(sumExcl);
       $("pSumVat").textContent  = fmtMoney(sumVat);
       $("pSumIncl").textContent = fmtMoney(sumIncl);
 
+      // İç özet tablo + 3 kutu
       renderInternalSummary(internalRows);
+      $("internalTotalCostIncl").value = fmtMoney(internalTotalCostIncl);
+      $("internalTotalProfitExcl").value = fmtMoney(internalTotalProfitExcl);
+      $("internalTotalProfitIncl").value = fmtMoney(internalTotalProfitIncl);
     }
 
     function buildPdfData(){
@@ -815,7 +882,7 @@
     });
 
     // Save/Load (görseller dataURL olarak kaydolur)
-    const KEY="cevizart_quote_v4_full";
+    const KEY="cevizart_quote_v5_internalboxes";
     function collect(){
       const rows = Array.from($("itemsBody").querySelectorAll("tr")).map(tr => ({
         name: tr.querySelector('[data-k="name"]').value,
