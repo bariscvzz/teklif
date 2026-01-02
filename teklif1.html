@@ -100,95 +100,115 @@
       font-size:12px;color:var(--muted);
     }
 
-    /* ====== PDF: tek sayfa fatura gibi ====== */
+    /* Görsel hücresi (UI) */
+    .imgCell{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+    .thumb{
+      width:38px;height:38px;border-radius:10px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+    }
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    .fileBtn{
+      display:inline-block;
+      padding:8px 10px;border-radius:10px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      cursor:pointer;
+      font-size:12px;font-weight:800;
+      user-select:none;
+    }
+    .fileBtn input{display:none}
+
+    /* ====== PDF PRINT: sadece pdfPage bas ====== */
     #pdfPage{ display:none; }
 
-    /* ✅ Basarken: ana ekran tamamen KAPANIR, sadece pdfPage görünür */
     body.printing .wrap{ display:none !important; }
     body.printing #pdfPage{
-    display:block !important;
-    position:static !important;   /* absolute olmasın -> sayfa kaydırma/boş sayfa yapmasın */
-    width:auto !important;
-    background:#fff;
-    color:#111;
+      display:block !important;
+      position:static !important;
+      width:auto !important;
+      background:#fff;
+      color:#111;
     }
-
-    /* Normalde pdf sayfası kapalı */
-    #pdfPage{ display:none; }
-
 
     @page { size: A4; margin: 10mm; }
-    @media print{
-      body{ background:#fff; }
-      .wrap, header, .card{ box-shadow:none !important; }
-    }
 
     /* PDF Layout */
     .pdfWrap{ font-family: Arial, sans-serif; }
     .pdfTitle{
       text-align:center;
       font-size:18px;
-      font-weight:800;
+      font-weight:900;
       letter-spacing:.6px;
-      margin:0 0 8px 0;
+      margin:0 0 10px 0;
     }
+
     .pdfTop{
       display:grid;
-      grid-template-columns: 1fr 1.2fr 1fr; /* sol kaşe, orta logo, sağ firma */
-      gap:8px;
-      align-items:center;
-      margin-bottom:8px;
+      grid-template-columns: 1.4fr 1fr; /* Logo büyük | Firma Bilgileri */
+      gap:10px;
+      align-items:stretch;
+      margin-bottom:10px;
     }
     .pdfBox{
       border:1px solid #ddd;
       border-radius:10px;
-      padding:8px;
-      min-height:72px;
+      padding:10px;
+      min-height:88px;
     }
-    .pdfLogo, .pdfStamp{
+    .pdfLogo{
       display:flex; align-items:center; justify-content:center;
-      min-height:56px;
+      height:100%;
+      min-height:88px;
     }
-    .pdfLogo img, .pdfStamp img{ max-height:56px; max-width:100%; object-fit:contain; }
+    .pdfLogo img{
+      max-height:92px; /* ✅ logo büyük */
+      max-width:100%;
+      object-fit:contain;
+    }
     .pdfInfo{
-      font-size:10.5px;
+      font-size:11px;
       line-height:1.25;
       white-space:pre-line;
     }
+
     .pdfMeta{
       display:grid;
       grid-template-columns: 1fr 1fr;
-      gap:8px;
-      margin-bottom:8px;
+      gap:10px;
+      margin-bottom:10px;
     }
-    .pdfMeta .pdfBox{ min-height:auto; }
 
     .pdfTable{
       width:100%;
       border-collapse:collapse;
-      font-size:10.5px;
+      font-size:11px;
     }
     .pdfTable th, .pdfTable td{
       border:1px solid #ddd;
-      padding:6px;
+      padding:7px;
       vertical-align:top;
     }
     .pdfTable th{
       background:#f3f4f6;
-      font-weight:800;
+      font-weight:900;
       text-align:left;
     }
     .pdfTable td.num, .pdfTable th.num{ text-align:right; white-space:nowrap; }
+    .pdfTable tr{ page-break-inside: avoid; break-inside: avoid; }
+
     .pdfTotals{
-      margin-top:8px;
+      margin-top:10px;
       display:flex;
       justify-content:flex-end;
     }
     .pdfTotalsBox{
-      width:320px;
+      width:340px;
       border:1px solid #ddd;
       border-radius:10px;
-      padding:8px;
+      padding:10px;
       font-size:11px;
     }
     .pdfTotalsRow{
@@ -197,24 +217,62 @@
       gap:10px;
       padding:2px 0;
     }
-    .pdfTotalsRow b{ font-weight:800; }
+    .pdfTotalsRow b{ font-weight:900; }
     .pdfNote{
-      margin-top:8px;
+      margin-top:10px;
       border:1px solid #ddd;
       border-radius:10px;
-      padding:8px;
-      font-size:10.5px;
+      padding:10px;
+      font-size:11px;
       white-space:pre-line;
     }
     .pdfFooter{
-      margin-top:6px;
+      margin-top:8px;
       text-align:center;
       font-size:10px;
       color:#333;
     }
 
-    /* Tek sayfa için: satır bölünmesin */
-    .pdfTable tr{ page-break-inside: avoid; break-inside: avoid; }
+    /* ✅ 2. sayfa: ürün görselleri */
+    .pdfPageBreak{ page-break-before: always; break-before: page; }
+    .pdfSubTitle{
+      font-size:14px;
+      font-weight:900;
+      margin:0 0 10px 0;
+      text-align:left;
+    }
+    .imgTable{
+      width:100%;
+      border-collapse:collapse;
+      font-size:11px;
+    }
+    .imgTable th, .imgTable td{
+      border:1px solid #ddd;
+      padding:8px;
+      vertical-align:middle;
+    }
+    .imgTable th{
+      background:#f3f4f6;
+      font-weight:900;
+      text-align:left;
+    }
+    .imgCellPdf{
+      width:60%;
+      text-align:left;
+    }
+    .imgBoxPdf{
+      width:100%;
+      height:120px;
+      border:1px solid #e5e7eb;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#fff;
+    }
+    .imgBoxPdf img{max-width:100%;max-height:100%;object-fit:contain}
+    .mutedPdf{color:#6b7280;font-size:11px}
   </style>
 </head>
 
@@ -235,7 +293,7 @@
     </header>
 
     <div class="grid">
-      <!-- SOL: müşteri/teklif -->
+      <!-- SOL -->
       <section class="card">
         <h2>Teklif & Müşteri Bilgileri</h2>
         <div class="content">
@@ -276,18 +334,6 @@
 
           <div class="divider"></div>
 
-          <h2 style="padding:0;margin:0 0 8px 0;">Ürün Hesap Ayarları</h2>
-          <div class="row">
-            <div class="field">
-              <label>Varsayılan Kâr (%)</label>
-              <input id="defaultMargin" type="number" min="0" step="1" value="60">
-            </div>
-            <div class="field">
-              <label>Varsayılan Satış KDV (%)</label>
-              <input id="defaultSaleVat" type="number" min="0" step="1" value="20">
-            </div>
-          </div>
-
           <div class="row">
             <div class="field">
               <label>Para Birimi</label>
@@ -316,12 +362,12 @@
 
           <div class="divider"></div>
           <div class="hint">
-            Repo kök dizinine <b>logo.png</b> ve <b>kase.png</b> koy. PDF üstünde otomatik çıkar.
+            Repo kök dizinine <b>logo.png</b> koy. PDF üstünde otomatik çıkar.
           </div>
         </div>
       </section>
 
-      <!-- SAĞ: İÇ EKRAN (senin panelin) -->
+      <!-- SAĞ -->
       <section class="card">
         <h2>Ürünler (Sadece sen görürsün)</h2>
         <div class="content">
@@ -342,6 +388,7 @@
                   <th class="num" style="min-width:85px;">Adet</th>
                   <th class="num" style="min-width:155px;">Toplam (KDV hariç)</th>
                   <th class="num" style="min-width:155px;">Toplam (KDV dahil)</th>
+                  <th class="num" style="min-width:170px;">Görsel</th>
                   <th style="min-width:70px;">Sil</th>
                 </tr>
               </thead>
@@ -372,24 +419,18 @@
     </div>
   </div>
 
-  <!-- ======== PDF SAYFASI (Sadece bu basılır) ======== -->
+  <!-- ===== PDF SAYFASI (Sadece bu basılır) ===== -->
   <section id="pdfPage">
     <div class="pdfWrap">
-      <div class="pdfTitle">FİYAT TEKLİFİ</div>
+      <!-- 1. Sayfa -->
+      <div class="pdfTitle">CEVİZ ART FİYAT TEKLİFİ</div>
 
       <div class="pdfTop">
         <div class="pdfBox">
-          <div style="font-size:10px;color:#555;margin-bottom:6px;"><b>Kaşe / İmza</b></div>
-          <div class="pdfStamp" id="pStamp"></div>
-        </div>
-
-        <div class="pdfBox">
-          <div style="font-size:10px;color:#555;margin-bottom:6px;text-align:center;"><b>Logo</b></div>
           <div class="pdfLogo" id="pLogo"></div>
         </div>
 
         <div class="pdfBox">
-          <div style="font-size:10px;color:#555;margin-bottom:6px;"><b>Firma Bilgileri</b></div>
           <div class="pdfInfo" id="pCompany"></div>
         </div>
       </div>
@@ -429,11 +470,27 @@
 
       <div class="pdfNote" id="pNote">-</div>
       <div class="pdfFooter">M.K.</div>
+
+      <!-- 2. Sayfa -->
+      <div class="pdfPageBreak"></div>
+      <div class="pdfSubTitle">Ürün Görselleri</div>
+
+      <table class="imgTable">
+        <thead>
+          <tr>
+            <th style="width:40%;">Ürün</th>
+            <th style="width:60%;">Görsel</th>
+          </tr>
+        </thead>
+        <tbody id="pImages"></tbody>
+      </table>
+
+      <div class="pdfFooter">M.K.</div>
     </div>
   </section>
 
   <script>
-    // ===== Sabit Firma Bilgileri (senin verdiğin) =====
+    // ===== Sabit Firma Bilgileri =====
     const CONFIG = {
       companyName: "Ceviz Art",
       phones: ["+90 543 492 68 40", "+90 544 900 74 85"],
@@ -442,8 +499,11 @@
         "Taşpazar Mah. 819/Şehit Yücel Demirtaş Sok.\n" +
         "Comertler Apt. No:7/A Merkez / AKSARAY",
       logoPath: "logo.png",
-      stampPath: "kase.png",
     };
+
+    // Ürün hesap ayarları kaldırıldı -> sabit varsayılanlar
+    const DEFAULT_MARGIN = 60;
+    const DEFAULT_SALE_VAT = 20;
 
     const $ = (id) => document.getElementById(id);
     const currencySymbols = { TRY:"₺", USD:"$", EUR:"€" };
@@ -471,8 +531,20 @@
         .replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
 
+    // Dosya -> dataURL
+    function fileToDataURL(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
     function makeRow(data={}){
       const tr = document.createElement("tr");
+      tr.dataset.img = data.img || "";
+
       tr.innerHTML = `
         <td><input class="mini" data-k="name" placeholder="Örn: Kalem" value="${esc(data.name||"")}"></td>
 
@@ -480,20 +552,49 @@
         <td class="num"><input class="mini num" data-k="buyVat" inputmode="numeric" placeholder="20" value="${esc(data.buyVat??"")}"></td>
         <td class="num nowrap"><span data-out="costIncl">0</span></td>
 
-        <td class="num"><input class="mini num" data-k="margin" inputmode="numeric" placeholder="${$("defaultMargin").value}" value="${esc(data.margin??"")}"></td>
+        <td class="num"><input class="mini num" data-k="margin" inputmode="numeric" placeholder="${DEFAULT_MARGIN}" value="${esc(data.margin??"")}"></td>
         <td class="num nowrap"><span data-out="saleUnitExcl">0</span></td>
 
-        <td class="num"><input class="mini num" data-k="saleVat" inputmode="numeric" placeholder="${$("defaultSaleVat").value}" value="${esc(data.saleVat??"")}"></td>
+        <td class="num"><input class="mini num" data-k="saleVat" inputmode="numeric" placeholder="${DEFAULT_SALE_VAT}" value="${esc(data.saleVat??"")}"></td>
         <td class="num nowrap"><span data-out="saleUnitIncl">0</span></td>
 
         <td class="num"><input class="mini num" data-k="qty" inputmode="numeric" placeholder="0" value="${esc(data.qty??"")}"></td>
         <td class="num nowrap"><span data-out="lineExcl">0</span></td>
         <td class="num nowrap"><span data-out="lineIncl">0</span></td>
 
+        <td class="num">
+          <div class="imgCell">
+            <div class="thumb" data-out="thumb">${tr.dataset.img ? `<img src="${tr.dataset.img}" alt="">` : `<span style="font-size:10px;color:rgba(233,238,247,.6)">YOK</span>`}</div>
+            <label class="fileBtn">
+              Yükle
+              <input type="file" accept="image/*" data-k="imgFile">
+            </label>
+            <button class="danger mini" data-act="imgDel" title="Görseli kaldır">X</button>
+          </div>
+        </td>
+
         <td><button class="danger mini" data-act="del">Sil</button></td>
       `;
+
       tr.addEventListener("input", recalc);
+
       tr.querySelector('[data-act="del"]').addEventListener("click", ()=>{ tr.remove(); recalc(); });
+
+      const imgInput = tr.querySelector('[data-k="imgFile"]');
+      imgInput.addEventListener("change", async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if(!file) return;
+        const url = await fileToDataURL(file);
+        tr.dataset.img = url;
+        tr.querySelector('[data-out="thumb"]').innerHTML = `<img src="${url}" alt="">`;
+      });
+
+      tr.querySelector('[data-act="imgDel"]').addEventListener("click", () => {
+        tr.dataset.img = "";
+        tr.querySelector('[data-out="thumb"]').innerHTML = `<span style="font-size:10px;color:rgba(233,238,247,.6)">YOK</span>`;
+        imgInput.value = "";
+      });
+
       return tr;
     }
 
@@ -507,12 +608,12 @@
         const costIncl = buyExcl * (1 + buyVat/100);
 
         let margin = tr.querySelector('[data-k="margin"]').value;
-        margin = margin === "" ? toNumber($("defaultMargin").value) : toNumber(margin);
+        margin = margin === "" ? DEFAULT_MARGIN : toNumber(margin);
 
         const saleUnitExcl = buyExcl * (1 + margin/100);
 
         let saleVat = tr.querySelector('[data-k="saleVat"]').value;
-        saleVat = saleVat === "" ? toNumber($("defaultSaleVat").value) : toNumber(saleVat);
+        saleVat = saleVat === "" ? DEFAULT_SALE_VAT : toNumber(saleVat);
 
         const saleUnitIncl = saleUnitExcl * (1 + saleVat/100);
 
@@ -536,14 +637,15 @@
       $("sumVat").value  = fmtMoney(sumVat);
       $("sumIncl").value = fmtMoney(sumIncl);
 
-      // PDF totals
       $("pSumExcl").textContent = fmtMoney(sumExcl);
       $("pSumVat").textContent  = fmtMoney(sumVat);
       $("pSumIncl").textContent = fmtMoney(sumIncl);
     }
 
     function buildPdfData(){
-      // üst bilgiler
+      // Logo + Firma bilgisi (logo büyük, "Logo" yazısı yok)
+      $("pLogo").innerHTML = `<img src="${CONFIG.logoPath}" alt="Ceviz Art Logo">`;
+
       const phones = CONFIG.phones.filter(Boolean).join(" / ");
       $("pCompany").textContent =
         `${CONFIG.companyName}\n` +
@@ -565,10 +667,6 @@
 
       $("pNote").textContent = $("quoteNote").value?.trim() ? $("quoteNote").value.trim() : "-";
 
-      // logo + kaşe
-      $("pLogo").innerHTML  = `<img src="${CONFIG.logoPath}" alt="Logo">`;
-      $("pStamp").innerHTML = `<img src="${CONFIG.stampPath}" alt="Kaşe">`;
-
       // PDF tablo: SADECE SATIŞ
       const mode = $("pdfPriceMode").value; // BOTH/INCL/EXCL
       const showExcl = (mode === "BOTH" || mode === "EXCL");
@@ -581,6 +679,9 @@
 
       const body = $("pItems");
       body.innerHTML = "";
+
+      const imgBody = $("pImages");
+      imgBody.innerHTML = "";
 
       const rows = Array.from($("itemsBody").querySelectorAll("tr"));
       for(const tr of rows){
@@ -603,29 +704,35 @@
           <td class="num" style="display:${showIncl?"":"none"};">${esc(lineIncl)}</td>
         `;
         body.appendChild(r);
+
+        // 2. sayfa görseller
+        const imgUrl = tr.dataset.img || "";
+        const ir = document.createElement("tr");
+        ir.innerHTML = `
+          <td><b>${esc(name)}</b></td>
+          <td class="imgCellPdf">
+            <div class="imgBoxPdf">
+              ${imgUrl ? `<img src="${imgUrl}" alt="${esc(name)}">` : `<span class="mutedPdf">Görsel eklenmedi</span>`}
+            </div>
+          </td>
+        `;
+        imgBody.appendChild(ir);
       }
     }
 
-  function printPdf(){
-  recalc();
-  buildPdfData();
+    function printPdf(){
+      recalc();
+      buildPdfData();
+      document.body.classList.add("printing");
+      requestAnimationFrame(()=> setTimeout(()=> window.print(), 50));
+    }
 
-  document.body.classList.add("printing");
-
-  // Bazı tarayıcılarda bir frame beklemek daha temiz
-  requestAnimationFrame(() => {
-    setTimeout(() => window.print(), 50);
-  });
-}
-
-
-    // Print bittikten sonra normale dön
     window.addEventListener("afterprint", ()=> {
       document.body.classList.remove("printing");
     });
 
-    // Save/Load
-    const KEY="cevizart_quote_v2";
+    // Save/Load (görseller dataURL olarak kaydolur)
+    const KEY="cevizart_quote_v3_images";
     function collect(){
       const rows = Array.from($("itemsBody").querySelectorAll("tr")).map(tr => ({
         name: tr.querySelector('[data-k="name"]').value,
@@ -634,6 +741,7 @@
         margin: tr.querySelector('[data-k="margin"]').value,
         saleVat: tr.querySelector('[data-k="saleVat"]').value,
         qty: tr.querySelector('[data-k="qty"]').value,
+        img: tr.dataset.img || ""
       }));
       return {
         meta:{
@@ -644,8 +752,6 @@
           customerEmail:$("customerEmail").value,
           customerAddress:$("customerAddress").value,
           quoteNote:$("quoteNote").value,
-          defaultMargin:$("defaultMargin").value,
-          defaultSaleVat:$("defaultSaleVat").value,
           currency:$("currency").value,
           pdfPriceMode:$("pdfPriceMode").value,
         },
@@ -661,8 +767,6 @@
       $("customerEmail").value = m.customerEmail||"";
       $("customerAddress").value = m.customerAddress||"";
       $("quoteNote").value = m.quoteNote||"";
-      $("defaultMargin").value = m.defaultMargin ?? "60";
-      $("defaultSaleVat").value = m.defaultSaleVat ?? "20";
       $("currency").value = m.currency ?? "TRY";
       $("pdfPriceMode").value = m.pdfPriceMode ?? "BOTH";
 
@@ -686,8 +790,6 @@
       $("customerEmail").value="";
       $("customerAddress").value="";
       $("quoteNote").value="";
-      $("defaultMargin").value="60";
-      $("defaultSaleVat").value="20";
       $("currency").value="TRY";
       $("pdfPriceMode").value="BOTH";
       $("itemsBody").innerHTML="";
@@ -708,7 +810,7 @@
       $("btnLoad").addEventListener("click", load);
       $("btnReset").addEventListener("click", resetAll);
 
-      ["defaultMargin","defaultSaleVat","currency","pdfPriceMode"].forEach(id => $(id).addEventListener("input", recalc));
+      ["currency","pdfPriceMode"].forEach(id => $(id).addEventListener("input", recalc));
     })();
   </script>
 </body>
