@@ -157,46 +157,38 @@
     }
     @page { size: A4; margin: 10mm; }
 
-    /* ========= PDF: mimcopy benzeri hizalama ========= */
+    /* ========= PDF: net hizalama + keskin çizgiler ========= */
     .sheet{
       font-family: Arial, sans-serif;
-      display:flex;
-      flex-direction:column;
-      min-height: calc(297mm - 20mm);
+      display:block;                 /* ürün azsa footer hemen gelsin */
     }
-    .sheetBody{ flex:1; }
 
     .pdfHeaderRow{
       display:grid;
-      grid-template-columns: 170px 1fr;
-      gap: 12px;
-      align-items:start;
+      grid-template-columns: 190px 1fr;
+      gap: 14px;
+      align-items:center;            /* MOR: sağ blok logonun orta hizası */
       margin-bottom: 6px;
     }
     .pdfHeaderLogo{
       display:flex;
       flex-direction:column;
       align-items:flex-start;
-      justify-content:flex-start;
     }
     .pdfHeaderLogo img{
-      width:155px;
+      width:175px;
       height:auto;
       object-fit:contain;
       display:block;
     }
-    .pdfHeaderLogo .pdfCompanyLine{
-      margin-top:6px;
-      font-size:10px;
-      font-weight:700;
-      letter-spacing:.2px;
-      text-transform:uppercase;
-    }
+
+    /* KIRMIZI: logonun altında ekstra yazı yok */
+    .pdfCompanyLine{ display:none; }
 
     .pdfHeaderInfo{
       font-size:11px;
-      line-height:1.45;
-      padding-top: 4px;
+      line-height:1.55;
+      padding-top:0;
     }
     .pdfInfoRow{
       display:flex;
@@ -204,7 +196,7 @@
       align-items:flex-start;
     }
     .pdfInfoRow b{
-      width:70px;
+      width:75px;
       display:inline-block;
       text-transform:uppercase;
     }
@@ -215,20 +207,22 @@
       font-weight:900;
       letter-spacing:.5px;
       text-transform:uppercase;
-      padding:8px 0 6px 0;
-      border-top: 2px solid #333;
-      border-bottom: 2px solid #333;
+      padding:7px 0 6px 0;
+      border-top:2px solid #000;
+      border-bottom:2px solid #000;
       margin: 6px 0 8px 0;
     }
 
+    /* YEŞİL: kesin siyah çizgiler + etiketler sağ hizalı */
     .boxTable{
       width:100%;
       border-collapse:collapse;
       font-size:11px;
       margin-bottom: 10px;
+      border:1.6px solid #000;
     }
     .boxTable td, .boxTable th{
-      border:1px solid #333;
+      border:1.4px solid #000;
       padding:8px 8px;
       vertical-align:middle;
     }
@@ -239,17 +233,23 @@
       letter-spacing:.2px;
       white-space:nowrap;
       width: 24%;
+      text-align:right;              /* etiketler sağa yaslı */
     }
-    .boxTable .val{ width: 26%; }
+    .boxTable .val{
+      width: 26%;
+      text-align:left;
+    }
 
+    /* MAVI: başlıklar ortalı + siyah kalın */
     .itemsTable{
       width:100%;
       border-collapse:collapse;
       font-size:11px;
       margin-top:6px;
+      border:1.6px solid #000;
     }
     .itemsTable th, .itemsTable td{
-      border:1px solid #333;
+      border:1.4px solid #000;
       padding:7px;
       vertical-align:top;
     }
@@ -258,9 +258,11 @@
       text-transform:uppercase;
       letter-spacing:.2px;
       background:#fff;
+      color:#000;
+      text-align:center;
     }
-    .itemsTable td.num, .itemsTable th.num{ text-align:right; white-space:nowrap; }
-    .itemsTable td.center, .itemsTable th.center{ text-align:center; white-space:nowrap; }
+    .itemsTable td.num{ text-align:right; white-space:nowrap; }
+    .itemsTable td.center{ text-align:center; white-space:nowrap; }
 
     .bottomGrid{
       display:grid;
@@ -269,7 +271,7 @@
       margin-top:10px;
     }
     .noteBox{
-      border:1px solid #333;
+      border:1.6px solid #000;
       min-height:110px;
       padding:10px;
       font-size:11px;
@@ -282,13 +284,13 @@
     }
 
     .totalsBox{
-      border:1px solid #333;
+      border:1.6px solid #000;
       display:grid;
       grid-template-columns: 1fr 1fr;
     }
     .totalsBox .cell{
-      border-left:1px solid #333;
-      border-top:1px solid #333;
+      border-left:1.4px solid #000;
+      border-top:1.4px solid #000;
       padding:9px 10px;
       font-size:11px;
       min-height:34px;
@@ -320,9 +322,10 @@
       width:100%;
       border-collapse:collapse;
       font-size:11px;
+      border:1.6px solid #000;
     }
     .signRow td{
-      border:1px solid #333;
+      border:1.4px solid #000;
       padding:10px;
       vertical-align:top;
       width:50%;
@@ -340,7 +343,7 @@
       text-align:center;
       font-size:10px;
       margin-top:6px;
-      border-top:1px solid #777;
+      border-top:1.2px solid #000;
       padding-top:6px;
     }
 
@@ -350,9 +353,10 @@
       border-collapse:collapse;
       font-size:11px;
       margin-top: 10px;
+      border:1.6px solid #000;
     }
     .imgListTable th, .imgListTable td{
-      border:1px solid #333;
+      border:1.4px solid #000;
       padding:8px;
       vertical-align:middle;
     }
@@ -360,18 +364,18 @@
       font-weight:900;
       text-transform:uppercase;
       letter-spacing:.2px;
-    }
-    .imgListTable td.center, .imgListTable th.center{
+      color:#000;
       text-align:center;
-      width:70px;
     }
+    .imgListTable td.center{ text-align:center; width:70px; }
+
     .imgBox{
       width:100%;
       height:120px;
       display:flex;
       align-items:center;
       justify-content:center;
-      border:1px solid #999;
+      border:1.2px solid #000;
       background:#fff;
       overflow:hidden;
     }
@@ -417,18 +421,18 @@
           <div class="row">
             <div class="field">
               <label>Müşteri Firma Adı</label>
-              <input id="customerName" placeholder="Örn: ABC İnşaat">
+              <input id="customerName" placeholder="Örn: Terzi">
             </div>
             <div class="field">
               <label>Firma Yetkilisi</label>
-              <input id="customerAuthorized" placeholder="Yetkili adı">
+              <input id="customerAuthorized" placeholder="Örn: Adem Sungur">
             </div>
           </div>
 
           <div class="row">
             <div class="field">
               <label>Telefon</label>
-              <input id="customerPhone" placeholder="+90 ...">
+              <input id="customerPhone" placeholder="Örn: 544 900 90 90">
             </div>
             <div class="field">
               <label>Fax</label>
@@ -439,7 +443,7 @@
           <div class="row">
             <div class="field">
               <label>Ödeme Şekli</label>
-              <input id="paymentType" placeholder="Nakit / Havale / Kredi Kartı...">
+              <input id="paymentType" placeholder="Örn: Havale">
             </div>
             <div class="field">
               <label>Planlanan Teslim Tarihi</label>
@@ -468,9 +472,9 @@
             <div class="field">
               <label>PDF’de gösterim</label>
               <select id="pdfPriceMode">
-                <option value="BOTH">Birim KDV Hariç + Dahil</option>
-                <option value="INCL">Sadece KDV Dahil</option>
                 <option value="EXCL">Sadece KDV Hariç</option>
+                <option value="INCL">Sadece KDV Dahil</option>
+                <option value="BOTH">Birim KDV Hariç + Dahil (PDF’de KDV Hariç yazar)</option>
               </select>
             </div>
           </div>
@@ -569,6 +573,7 @@
   </section>
 
   <script>
+    // ===== Firma Sabitleri =====
     const CONFIG = {
       companyName: "Ceviz Art",
       phones: ["+90 543 492 68 40", "+90 544 900 74 85"],
@@ -608,7 +613,6 @@
         .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
         .replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
-
     function fileToDataURL(file){
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -851,7 +855,7 @@
         items.push({ name, qty, unitExcl, unitIncl, lineExcl, lineIncl, img });
       }
 
-      const mode = $("pdfPriceMode").value;
+      const mode = $("pdfPriceMode").value; // EXCL/INCL/BOTH
       const priceModeForTemplate = (mode === "INCL") ? "INCL" : "EXCL";
 
       // ===== 1. sayfa =====
@@ -925,7 +929,7 @@
             <div class="totalsBox">
               <div class="cell">TOPLAM TUTAR</div>
               <div class="cell">${esc(priceModeForTemplate==="EXCL" ? totalExcl : totalIncl)}</div>
-              <div class="cell">${esc((mode==="INCL") ? (DEFAULT_SALE_VAT + "% KDV") : (DEFAULT_SALE_VAT + "% KDV"))}</div>
+              <div class="cell">${DEFAULT_SALE_VAT}% KDV</div>
               <div class="cell">${esc(totalVat)}</div>
               <div class="cell">GENEL TOPLAM</div>
               <div class="cell">${esc(totalIncl)}</div>
@@ -998,6 +1002,7 @@
                   <div style="font-weight:900; font-size:12px; text-transform:uppercase;">ÜRÜN GÖRSELLERİ</div>
                   <div style="margin-top:6px;">Teklif No: <b>${esc(quoteNo||"-")}</b> • Tarih: <b>${esc(quoteDate||"-")}</b></div>
                   <div style="margin-top:2px;">Firma: <b>${esc(firmName||"-")}</b></div>
+                  <div style="margin-top:2px;">Sosyal: <b>${esc(CONFIG.social)}</b></div>
                 </div>
               </div>
 
@@ -1067,7 +1072,7 @@
     });
 
     // Save/Load
-    const KEY="cevizart_quote_v7_mimcopyalign";
+    const KEY="cevizart_quote_final_singlefile";
     function collect(){
       const rows = Array.from($("itemsBody").querySelectorAll("tr")).map(tr => ({
         name: tr.querySelector('[data-k="name"]').value,
@@ -1141,7 +1146,6 @@
       recalc();
     }
 
-    // init
     (function init(){
       $("quoteDate").value = todayISO();
       $("deliveryDate").value = todayISO();
@@ -1151,13 +1155,13 @@
       load();
       recalc();
 
-      document.getElementById("btnAdd").addEventListener("click", ()=>{ $("itemsBody").appendChild(makeRow()); recalc(); });
-      document.getElementById("btnPdf").addEventListener("click", printPdf);
-      document.getElementById("btnSave").addEventListener("click", save);
-      document.getElementById("btnLoad").addEventListener("click", load);
-      document.getElementById("btnReset").addEventListener("click", resetAll);
+      $("btnAdd").addEventListener("click", ()=>{ $("itemsBody").appendChild(makeRow()); recalc(); });
+      $("btnPdf").addEventListener("click", printPdf);
+      $("btnSave").addEventListener("click", save);
+      $("btnLoad").addEventListener("click", load);
+      $("btnReset").addEventListener("click", resetAll);
 
-      ["currency","pdfPriceMode"].forEach(id => document.getElementById(id).addEventListener("input", recalc));
+      ["currency","pdfPriceMode"].forEach(id => $(id).addEventListener("input", recalc));
     })();
   </script>
 </body>
