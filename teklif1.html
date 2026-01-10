@@ -157,20 +157,22 @@
     }
     @page { size: A4; margin: 10mm; }
 
-    /* ========= PDF: çizgiler NORMAL (1px) + birleşik ========= */
-    :root{
-      --pdf-line: 1px solid #000;
-    }
+    /* ========= PDF: NORMAL çizgi (1px) + birleşik köşe mantığı ========= */
+    :root{ --pdf-line: 1px solid #000; }
+
     .sheet{
       font-family: Arial, sans-serif;
       display:block;
+      background:#fff;
+      color:#111;
     }
+
     .pdfHeaderRow{
       display:grid;
       grid-template-columns: 190px 1fr;
       gap: 14px;
       align-items:center;
-      margin-bottom: 6px;
+      margin: 0 0 6px 0;
     }
     .pdfHeaderLogo img{
       width:175px;
@@ -178,13 +180,9 @@
       object-fit:contain;
       display:block;
     }
-    .pdfCompanyLine{ display:none; } /* logo altı yazı yok */
+    .pdfCompanyLine{ display:none; }
 
-    .pdfHeaderInfo{
-      font-size:11px;
-      line-height:1.55;
-      padding-top:0;
-    }
+    .pdfHeaderInfo{font-size:11px;line-height:1.55;padding-top:0}
     .pdfInfoRow{display:flex;gap:10px;align-items:flex-start}
     .pdfInfoRow b{width:75px;display:inline-block;text-transform:uppercase}
 
@@ -200,7 +198,7 @@
       margin: 6px 0 8px 0;
     }
 
-    /* ÜST BİLGİ TABLOSU */
+    /* ÜST BİLGİ */
     .boxTable{
       width:100%;
       border-collapse:collapse;
@@ -220,17 +218,20 @@
       letter-spacing:.2px;
       white-space:nowrap;
       width: 24%;
-      text-align:right; /* etiketler sağa yaslı */
+      text-align:right;
     }
     .boxTable .val{width: 26%; text-align:left;}
 
-    /* ÜRÜN TABLOSU */
+    /* ÜRÜN TABLOSU (alt border YOK -> alt blokla birleşecek) */
     .itemsTable{
       width:100%;
       border-collapse:collapse;
       font-size:11px;
-      margin:0; /* birleşme için sıfır */
-      border: var(--pdf-line);
+      margin:0;
+      border-left: var(--pdf-line);
+      border-right: var(--pdf-line);
+      border-top: var(--pdf-line);
+      border-bottom: none;
     }
     .itemsTable th, .itemsTable td{
       border: var(--pdf-line);
@@ -248,16 +249,19 @@
     .itemsTable td.num{ text-align:right; white-space:nowrap; }
     .itemsTable td.center{ text-align:center; white-space:nowrap; }
 
-    /* ALT BLOK: açıklamalar + toplamlar BİRLEŞSİN */
+    /* ALT BLOK (üst border YOK -> itemsTable ile birleşecek) */
     .bottomGrid{
       display:grid;
       grid-template-columns: 1.6fr 1fr;
-      gap:0;                 /* birleşmeyi sağlar */
-      margin-top:10px;
-      border: var(--pdf-line); /* dıştan tek çerçeve */
+      gap:0;
+      margin-top:0;
+      border-left: var(--pdf-line);
+      border-right: var(--pdf-line);
+      border-bottom: var(--pdf-line);
+      border-top: none;
     }
     .noteBox{
-      border-right: var(--pdf-line); /* aradaki çizgi */
+      border-right: var(--pdf-line);
       padding:10px;
       font-size:11px;
       min-height:110px;
@@ -283,20 +287,17 @@
       align-items:center;
       justify-content:space-between;
     }
-    /* ilk satır üst çizgi bottomGrid'den geldi gibi görünmesin diye */
     .totalsBox .cell:nth-child(1),
     .totalsBox .cell:nth-child(2){ border-top:none; }
 
-    /* sol kolon etiketler (TOPLAM TUTAR / KDV / GENEL TOPLAM) */
     .totalsBox .cell:nth-child(1),
     .totalsBox .cell:nth-child(3),
     .totalsBox .cell:nth-child(5){
-      border-left:none; /* totals kutusunun sol çizgisi noteBox ile birleşiyor */
+      border-left:none;
       font-weight:900;
       text-transform:uppercase;
       letter-spacing:.2px;
     }
-    /* sağ kolon değerler */
     .totalsBox .cell:nth-child(2),
     .totalsBox .cell:nth-child(4),
     .totalsBox .cell:nth-child(6){
@@ -305,14 +306,17 @@
       white-space:nowrap;
     }
 
-    /* İMZA BLOĞU */
-    .sheetFooter{ margin-top: 10px; }
+    /* İMZA (üst border YOK -> üstteki blokla birleşecek) */
+    .sheetFooter{ margin-top:0; }
 
     .signRow{
       width:100%;
       border-collapse:collapse;
       font-size:11px;
-      border: var(--pdf-line);
+      border-left: var(--pdf-line);
+      border-right: var(--pdf-line);
+      border-bottom: var(--pdf-line);
+      border-top: none;
     }
     .signRow td{
       border: var(--pdf-line);
@@ -561,6 +565,7 @@
   </section>
 
   <script>
+    // ===== Firma Sabitleri =====
     const CONFIG = {
       companyName: "Ceviz Art",
       phones: ["+90 543 492 68 40", "+90 544 900 74 85"],
@@ -806,23 +811,6 @@
       $("internalTotalProfitIncl").value = fmtMoney(internalTotalProfitIncl);
     }
 
-    // Ürün azsa bile çizgiler düzgün görünmesi için 14 satıra tamamla
-    function fillRowsTo14(tbody){
-      const target = 14;
-      const current = tbody.children.length;
-      for(let i=current; i<target; i++){
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td class="center">${i+1}</td>
-          <td>&nbsp;</td>
-          <td class="center">&nbsp;</td>
-          <td class="num">&nbsp;</td>
-          <td class="num">&nbsp;</td>
-        `;
-        tbody.appendChild(tr);
-      }
-    }
-
     function buildPdfSheets(){
       const wrap = $("pdfSheets");
       wrap.innerHTML = "";
@@ -982,9 +970,6 @@
         pdfItemsBody.appendChild(tr);
       });
 
-      // 14 satıra tamamla (mimcopy gibi)
-      fillRowsTo14(pdfItemsBody);
-
       // ===== görseller sayfaları =====
       const imgItems = items.filter(x => x.name);
       if(imgItems.length){
@@ -1077,9 +1062,10 @@
       document.body.classList.remove("printing");
     });
 
-    const KEY="cevizart_quote_pdf_lines_joined";
+    // Save/Load
+    const KEY="cevizart_quote_final_fullcode";
     function collect(){
-      const rows = Array.from(document.getElementById("itemsBody").querySelectorAll("tr")).map(tr => ({
+      const rows = Array.from($("itemsBody").querySelectorAll("tr")).map(tr => ({
         name: tr.querySelector('[data-k="name"]').value,
         buyExcl: tr.querySelector('[data-k="buyExcl"]').value,
         buyVat: tr.querySelector('[data-k="buyVat"]').value,
@@ -1090,41 +1076,40 @@
       }));
       return {
         meta:{
-          quoteNo:document.getElementById("quoteNo").value,
-          quoteDate:document.getElementById("quoteDate").value,
-          customerName:document.getElementById("customerName").value,
-          customerAuthorized:document.getElementById("customerAuthorized").value,
-          customerPhone:document.getElementById("customerPhone").value,
-          customerFax:document.getElementById("customerFax").value,
-          paymentType:document.getElementById("paymentType").value,
-          deliveryDate:document.getElementById("deliveryDate").value,
-          offeredBy:document.getElementById("offeredBy").value,
-          quoteNote:document.getElementById("quoteNote").value,
-          currency:document.getElementById("currency").value,
-          pdfPriceMode:document.getElementById("pdfPriceMode").value,
+          quoteNo:$("quoteNo").value,
+          quoteDate:$("quoteDate").value,
+          customerName:$("customerName").value,
+          customerAuthorized:$("customerAuthorized").value,
+          customerPhone:$("customerPhone").value,
+          customerFax:$("customerFax").value,
+          paymentType:$("paymentType").value,
+          deliveryDate:$("deliveryDate").value,
+          offeredBy:$("offeredBy").value,
+          quoteNote:$("quoteNote").value,
+          currency:$("currency").value,
+          pdfPriceMode:$("pdfPriceMode").value,
         },
         rows
       };
     }
     function apply(data){
       const m=data?.meta||{};
-      document.getElementById("quoteNo").value = m.quoteNo||"";
-      document.getElementById("quoteDate").value = m.quoteDate||todayISO();
-      document.getElementById("customerName").value = m.customerName||"";
-      document.getElementById("customerAuthorized").value = m.customerAuthorized||"";
-      document.getElementById("customerPhone").value = m.customerPhone||"";
-      document.getElementById("customerFax").value = m.customerFax||"";
-      document.getElementById("paymentType").value = m.paymentType||"";
-      document.getElementById("deliveryDate").value = m.deliveryDate||todayISO();
-      document.getElementById("offeredBy").value = m.offeredBy||"Barış Ceviz";
-      document.getElementById("quoteNote").value = m.quoteNote||"";
-      document.getElementById("currency").value = m.currency ?? "TRY";
-      document.getElementById("pdfPriceMode").value = m.pdfPriceMode ?? "EXCL";
+      $("quoteNo").value = m.quoteNo||"";
+      $("quoteDate").value = m.quoteDate||todayISO();
+      $("customerName").value = m.customerName||"";
+      $("customerAuthorized").value = m.customerAuthorized||"";
+      $("customerPhone").value = m.customerPhone||"";
+      $("customerFax").value = m.customerFax||"";
+      $("paymentType").value = m.paymentType||"";
+      $("deliveryDate").value = m.deliveryDate||todayISO();
+      $("offeredBy").value = m.offeredBy||"Barış Ceviz";
+      $("quoteNote").value = m.quoteNote||"";
+      $("currency").value = m.currency ?? "TRY";
+      $("pdfPriceMode").value = m.pdfPriceMode ?? "EXCL";
 
-      const body = document.getElementById("itemsBody");
-      body.innerHTML="";
-      (data?.rows||[]).forEach(r => body.appendChild(makeRow(r)));
-      if((body.children.length||0)===0) body.appendChild(makeRow());
+      $("itemsBody").innerHTML="";
+      (data?.rows||[]).forEach(r => $("itemsBody").appendChild(makeRow(r)));
+      if(($("itemsBody").children.length||0)===0) $("itemsBody").appendChild(makeRow());
       recalc();
     }
     function save(){ localStorage.setItem(KEY, JSON.stringify(collect())); }
@@ -1135,43 +1120,39 @@
     }
     function resetAll(){
       localStorage.removeItem(KEY);
-      document.getElementById("quoteNo").value="";
-      document.getElementById("quoteDate").value=todayISO();
-      document.getElementById("customerName").value="";
-      document.getElementById("customerAuthorized").value="";
-      document.getElementById("customerPhone").value="";
-      document.getElementById("customerFax").value="";
-      document.getElementById("paymentType").value="";
-      document.getElementById("deliveryDate").value=todayISO();
-      document.getElementById("offeredBy").value="Barış Ceviz";
-      document.getElementById("quoteNote").value="";
-      document.getElementById("currency").value="TRY";
-      document.getElementById("pdfPriceMode").value="EXCL";
-      const body = document.getElementById("itemsBody");
-      body.innerHTML="";
-      body.appendChild(makeRow());
+      $("quoteNo").value="";
+      $("quoteDate").value=todayISO();
+      $("customerName").value="";
+      $("customerAuthorized").value="";
+      $("customerPhone").value="";
+      $("customerFax").value="";
+      $("paymentType").value="";
+      $("deliveryDate").value=todayISO();
+      $("offeredBy").value="Barış Ceviz";
+      $("quoteNote").value="";
+      $("currency").value="TRY";
+      $("pdfPriceMode").value="EXCL";
+      $("itemsBody").innerHTML="";
+      $("itemsBody").appendChild(makeRow());
       recalc();
     }
 
     (function init(){
-      document.getElementById("quoteDate").value = todayISO();
-      document.getElementById("deliveryDate").value = todayISO();
-      document.getElementById("offeredBy").value = "Barış Ceviz";
+      $("quoteDate").value = todayISO();
+      $("deliveryDate").value = todayISO();
+      $("offeredBy").value = "Barış Ceviz";
 
-      document.getElementById("itemsBody").appendChild(makeRow());
+      $("itemsBody").appendChild(makeRow());
       load();
       recalc();
 
-      document.getElementById("btnAdd").addEventListener("click", ()=>{
-        document.getElementById("itemsBody").appendChild(makeRow());
-        recalc();
-      });
-      document.getElementById("btnPdf").addEventListener("click", printPdf);
-      document.getElementById("btnSave").addEventListener("click", save);
-      document.getElementById("btnLoad").addEventListener("click", load);
-      document.getElementById("btnReset").addEventListener("click", resetAll);
+      $("btnAdd").addEventListener("click", ()=>{ $("itemsBody").appendChild(makeRow()); recalc(); });
+      $("btnPdf").addEventListener("click", printPdf);
+      $("btnSave").addEventListener("click", save);
+      $("btnLoad").addEventListener("click", load);
+      $("btnReset").addEventListener("click", resetAll);
 
-      ["currency","pdfPriceMode"].forEach(id => document.getElementById(id).addEventListener("input", recalc));
+      ["currency","pdfPriceMode"].forEach(id => $(id).addEventListener("input", recalc));
     })();
   </script>
 </body>
